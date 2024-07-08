@@ -2,11 +2,13 @@ from bs4 import BeautifulSoup
 import requests
 import re
 from docx import Document
+import tkinter as tk
+from tkinter import messagebox
 
 def scrape_learning_tree_course(url):
     # Check if the URL is from Learning Tree
     if not re.match(r'https?://(www\.)?learningtree\.com/courses/.+', url):
-        print("Please enter a valid Learning Tree course page URL.")
+        messagebox.showerror("Error", "Please enter a valid Learning Tree course page URL.")
         return
 
     try:
@@ -51,11 +53,28 @@ def scrape_learning_tree_course(url):
 
         # Save the document
         doc.save('scraped_data.docx')
-        print("Scraped data written to the scraped_data.docx file")
+        messagebox.showinfo("Success", "Scraped data written to the scraped_data.docx file")
 
     except requests.exceptions.RequestException as e:
-        print(f"Failed to get the data from {url}: {e}")
+        messagebox.showerror("Error", f"Failed to get the data from {url}: {e}")
 
-# Prompt the user for the URL
-course_url = input("Enter a Learning Tree course page URL (e.g., https://www.learningtree.com/courses/cissp-training/): ")
-scrape_learning_tree_course(course_url)
+# Create a tkinter GUI window
+def get_url_and_scrape():
+    url = url_entry.get()
+    scrape_learning_tree_course(url)
+
+root = tk.Tk()
+root.title("Learning Tree Course Scraper")
+
+# URL Entry
+url_label = tk.Label(root, text="Enter Learning Tree course URL:")
+url_label.pack(pady=10)
+url_entry = tk.Entry(root, width=50)
+url_entry.pack(pady=10)
+
+# Scrape Button
+scrape_button = tk.Button(root, text="Scrape Course Data", command=get_url_and_scrape)
+scrape_button.pack(pady=10)
+
+# Run the GUI
+root.mainloop()
