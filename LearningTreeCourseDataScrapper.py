@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import re
+from docx import Document
 
 def scrape_learning_tree_course(url):
     # Check if the URL is from Learning Tree
@@ -22,32 +23,35 @@ def scrape_learning_tree_course(url):
         course_dates = soup.find_all(class_="courses-date__item-title")
         course_details = soup.find_all(class_="course-detail-info__content-outline col-8")
 
-        # Open the text file in write mode
-        with open('scraped_data.txt', 'w') as file:
-            # Write course name
-            if course_name:
-                file.write(f"-------- {course_name.text.strip()} ---------\n\n")
+        # Create a new Word document
+        doc = Document()
 
-            # Write course hero details
-            file.write("-------- Course Summary Start ---------\n\n")
-            for detail in course_hero_details:
-                file.write(detail.text.strip() + '\n')
-            file.write("-------- Course Summary End ---------\n\n")
+        # Add course name
+        if course_name:
+            doc.add_heading(f"-------- {course_name.text.strip()} ---------", level=1)
 
-            # Write course dates
-            file.write("-------- Course Dates Start ---------\n\n")
-            for date in course_dates:
-                date_text = date.text.strip().replace('\n', " # ").replace("Guaranteed to Run - you can rest assured that the class will not be cancelled. #  # ", "")
-                file.write(date_text + '\n')
-            file.write("-------- Course Dates End ---------\n\n\n\n")
+        # Add course hero details
+        doc.add_heading("-------- Course Summary Start ---------", level=2)
+        for detail in course_hero_details:
+            doc.add_paragraph(detail.text.strip())
+        doc.add_heading("-------- Course Summary End ---------", level=2)
 
-            # Write course details
-            file.write("-------- Course Details ---------\n\n")
-            for detail in course_details:
-                file.write(detail.text.strip() + '\n\n')
-            file.write("-------- Course Details End ---------\n\n\n\n")
+        # Add course dates
+        doc.add_heading("-------- Course Dates Start ---------", level=2)
+        for date in course_dates:
+            date_text = date.text.strip().replace('\n', " # ").replace("Guaranteed to Run - you can rest assured that the class will not be cancelled. #  # ", "")
+            doc.add_paragraph(date_text)
+        doc.add_heading("-------- Course Dates End ---------", level=2)
 
-        print("Scraped data written to the scraped_data.txt file")
+        # Add course details
+        doc.add_heading("-------- Course Details ---------", level=2)
+        for detail in course_details:
+            doc.add_paragraph(detail.text.strip())
+        doc.add_heading("-------- Course Details End ---------", level=2)
+
+        # Save the document
+        doc.save('scraped_data.docx')
+        print("Scraped data written to the scraped_data.docx file")
 
     except requests.exceptions.RequestException as e:
         print(f"Failed to get the data from {url}: {e}")
