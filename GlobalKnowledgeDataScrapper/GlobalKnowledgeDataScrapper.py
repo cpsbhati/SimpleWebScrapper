@@ -77,7 +77,7 @@ def scrape_and_save():
 
 # Create a tkinter window
 root = tk.Tk()
-root.title("Web Scraping Tool")
+root.title("GK Course Page Scraping Tool")
 
 # Create URL entry and label
 url_label = tk.Label(root, text="Enter URL:")
